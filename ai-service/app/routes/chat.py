@@ -12,8 +12,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.config import settings
-from app.services.claude.service import ClaudeService
-from app.services.context.service import get_docker_context
+from app.services.claude_service import ClaudeService
+from app.services.context_service import get_docker_context
 
 router = APIRouter()
 claude_service = ClaudeService()

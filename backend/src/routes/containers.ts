@@ -1,7 +1,14 @@
+import { exec as childExec } from "child_process";
+import { promises as fs } from "fs";
+import os from "os";
+import path from "path";
 import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
+import { promisify } from "util";
 import { DeploymentService } from "../services/deployment.service";
 import { DockerService } from "../services/docker.service";
+
+const execAsync = promisify(childExec);
 
 export const createContainerRoutes = (
   prisma: PrismaClient,
@@ -9,6 +16,32 @@ export const createContainerRoutes = (
   deploymentService: DeploymentService
 ): Router => {
   const router = Router();
+
+  router.post("/deploy", async (req, res, next) => {
+    try {
+      const composeYaml = (req.body as { composeYaml?: string }).composeYaml;
+      if (!composeYaml || !composeYaml.trim()) {
+        res.status(400).json({ error: "composeYaml is required" });
+        return;
+      }
+
+      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "dockpilot-"));
+      const composePath = path.join(tmpDir, "docker-compose.yml");
+
+      try {
+        await fs.writeFile(composePath, composeYaml, "utf8");
+        const { stdout, stderr } = await execAsync(`docker compose -f "${composePath}" up -d --build`);
+        res.json({
+          ok: true,
+          output: [stdout, stderr].filter(Boolean).join("\n").trim()
+        });
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
 
   router.get("/", async (_req, res, next) => {
     try {

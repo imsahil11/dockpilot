@@ -35,7 +35,7 @@ export const createTopologyRoutes = (dockerService: DockerService): Router => {
               memoryMb: 0
             };
 
-        const serviceNodeId = `svc:${inspect.Id.slice(0, 12)}`;
+        const serviceNodeId = inspect.Id;
         nodes.push({
           id: serviceNodeId,
           type: "service",

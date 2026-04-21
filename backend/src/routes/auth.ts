@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { body, validationResult } from "express-validator";
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { config } from "../config";
 import { authenticate } from "../middleware/auth";
 
@@ -15,7 +15,7 @@ export const createAuthRoutes = (prisma: PrismaClient): Router => {
       body("username").isString().isLength({ min: 3, max: 20 }),
       body("password").isString().isLength({ min: 8 })
     ],
-    async (req, res, next) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -44,7 +44,7 @@ export const createAuthRoutes = (prisma: PrismaClient): Router => {
             username: user.username
           },
           config.jwtSecret,
-          { expiresIn: config.jwtExpiry }
+          { expiresIn: config.jwtExpiry as SignOptions["expiresIn"] }
         );
 
         res.status(201).json({
@@ -64,7 +64,7 @@ export const createAuthRoutes = (prisma: PrismaClient): Router => {
   router.post(
     "/login",
     [body("username").isString(), body("password").isString()],
-    async (req, res, next) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -92,7 +92,7 @@ export const createAuthRoutes = (prisma: PrismaClient): Router => {
             username: user.username
           },
           config.jwtSecret,
-          { expiresIn: config.jwtExpiry }
+          { expiresIn: config.jwtExpiry as SignOptions["expiresIn"] }
         );
 
         res.json({

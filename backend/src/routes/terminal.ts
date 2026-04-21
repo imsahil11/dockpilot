@@ -1,7 +1,7 @@
 import { IncomingMessage } from "http";
 import { PrismaClient } from "@prisma/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 import { logger } from "../config";
 import { DockerService } from "../services/docker.service";
 
@@ -62,7 +62,7 @@ export const initializeTerminalWebSocket = (
     });
   });
 
-  wss.on("connection", async (ws, _request: IncomingMessage, session: TerminalSessionContext) => {
+  wss.on("connection", async (ws: WebSocket, _request: IncomingMessage, session: TerminalSessionContext) => {
     const container = dockerService.getClient().getContainer(session.containerId);
     let logContainerName = session.containerId;
     let logImage = "unknown";
@@ -99,18 +99,18 @@ export const initializeTerminalWebSocket = (
       });
 
       stream.on("data", (chunk: Buffer) => {
-        if (ws.readyState === ws.OPEN) {
+        if (ws.readyState === WebSocket.OPEN) {
           ws.send(chunk);
         }
       });
 
       stream.on("error", (error) => {
-        if (ws.readyState === ws.OPEN) {
+        if (ws.readyState === WebSocket.OPEN) {
           ws.send(`\r\n[DockPilot terminal error] ${(error as Error).message}\r\n`);
         }
       });
 
-      ws.on("message", async (rawData) => {
+      ws.on("message", async (rawData: WebSocket.RawData) => {
         const data = rawData.toString("utf8");
         try {
           const parsed = JSON.parse(data) as { type?: string; cols?: number; rows?: number; input?: string };
@@ -148,7 +148,7 @@ export const initializeTerminalWebSocket = (
       });
     } catch (error) {
       logger.error(`Terminal websocket setup failed: ${(error as Error).message}`);
-      if (ws.readyState === ws.OPEN) {
+      if (ws.readyState === WebSocket.OPEN) {
         ws.send(`\r\n[DockPilot] Unable to open terminal: ${(error as Error).message}\r\n`);
         ws.close();
       }

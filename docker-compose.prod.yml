@@ -38,8 +38,9 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-}
       NODE_ENV: production
+      DOCKER_SOCKET_PATH: ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${DOCKER_SOCKET_MOUNT:-/var/run/docker.sock}:/var/run/docker.sock:ro
     networks:
       - dockpilot_network
 

@@ -34,7 +34,10 @@ export class SecurityService {
     const inspect = await this.dockerService.getClient().getContainer(containerId).inspect();
     const issues: SecurityIssue[] = [];
 
-    const portBindings = inspect.HostConfig?.PortBindings ?? {};
+    const portBindings = (inspect.HostConfig?.PortBindings ?? {}) as Record<
+      string,
+      Array<{ HostIp?: string }> | null
+    >;
     const hasPublicBinding = Object.values(portBindings).some((bindings) =>
       (bindings ?? []).some((binding) => binding.HostIp === "0.0.0.0")
     );
@@ -112,12 +115,14 @@ export class SecurityService {
       passedChecks
     };
 
+    const issuesPayload = JSON.parse(JSON.stringify(issues));
+
     await this.prisma.securityScan.create({
       data: {
         containerId: inspect.Id,
         containerName: inspect.Name.replace(/^\//, ""),
         score,
-        issuesFound: issues,
+        issuesFound: issuesPayload,
         totalChecks,
         passedChecks,
         triggeredBy
