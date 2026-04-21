@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int              @id @default(autoincrement())
+  username      String           @unique
+  passwordHash  String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deployments   DeploymentLog[]
+  chatLogs      AiChatLog[]
+  securityScans SecurityScan[]
+}
+
+model ContainerSnapshot {
+  id               Int      @id @default(autoincrement())
+  containerId      String
+  containerName    String
+  image            String
+  status           String
+  cpuPercent       Float
+  memoryMb         Float
+  networkInBytes   BigInt
+  networkOutBytes  BigInt
+  recordedAt       DateTime @default(now())
+
+  @@index([containerId, recordedAt])
+}
+
+model DeploymentLog {
+  id              Int      @id @default(autoincrement())
+  containerId     String
+  containerName   String
+  imageVersion    String
+  imageDigest     String?
+  action          String
+  outcome         String
+  triggeredBy     Int?
+  triggeredSource String
+  notes           String?
+  createdAt       DateTime @default(now())
+  user            User?    @relation(fields: [triggeredBy], references: [id])
+
+  @@index([containerName, createdAt])
+}
+
+model Alert {
+  id             Int       @id @default(autoincrement())
+  containerId    String
+  containerName  String
+  alertType      String
+  severity       String
+  thresholdValue Float?
+  actualValue    Float?
+  resolved       Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  resolvedAt     DateTime?
+
+  @@index([containerId, resolved])
+}
+
+model AiChatLog {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  message         String
+  response        String
+  mode            String
+  commandExecuted String?
+  commandOutcome  String?
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model SecurityScan {
+  id            Int      @id @default(autoincrement())
+  containerId   String
+  containerName String
+  score         Int
+  issuesFound   Json
+  totalChecks   Int
+  passedChecks  Int
+  scannedAt     DateTime @default(now())
+  triggeredBy   Int?
+  user          User?    @relation(fields: [triggeredBy], references: [id])
+
+  @@index([containerId, scannedAt])
+}
