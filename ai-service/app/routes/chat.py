@@ -12,11 +12,11 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.config import settings
-from app.services.claude_service import ClaudeService
+from app.services.gemini_service import GeminiService
 from app.services.context_service import get_docker_context
 
 router = APIRouter()
-claude_service = ClaudeService()
+gemini_service = GeminiService()
 
 SYSTEM_PROMPT_TEMPLATE = """You are DockPilot AI, an expert Docker assistant embedded in a Docker management platform.
 
@@ -128,7 +128,7 @@ async def chat(request: Request, payload: ChatRequest) -> StreamingResponse:
                 collected += token
                 yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"
 
-            async for token in claude_service.stream_chat(
+            async for token in gemini_service.stream_chat(
                 system_prompt=system_prompt,
                 message=payload.message,
                 conversation_history=[m.model_dump() for m in payload.conversationHistory],

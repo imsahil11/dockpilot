@@ -26,7 +26,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRY: ${JWT_EXPIRY}
-      CLAUDE_API_KEY: ${CLAUDE_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY:-}
       AI_SERVICE_URL: ${AI_SERVICE_URL}
       ALERT_CPU_THRESHOLD: ${ALERT_CPU_THRESHOLD:-80}
       ALERT_MEMORY_THRESHOLD: ${ALERT_MEMORY_THRESHOLD:-90}
@@ -46,7 +47,9 @@ services:
   ai-service:
     build: ./ai-service
     environment:
-      CLAUDE_API_KEY: ${CLAUDE_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3-flash-preview}
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY:-}
       BACKEND_URL: ${BACKEND_URL}
     ports:
       - "8000:8000"

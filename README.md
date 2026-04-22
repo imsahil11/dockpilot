@@ -30,14 +30,14 @@ Self-hosted, AI-powered Docker management platform with live topology, monitorin
 1. Clone the repository
 2. Enter the project directory
 3. Copy example environment file
-4. Edit `.env` and set `CLAUDE_API_KEY`
+4. Edit `.env` and set `GEMINI_API_KEY`
 5. Start all services
 
 ```bash
 git clone https://github.com/imsahil11/DockPilot
 cd DockPilot
 cp .env.example .env
-# Edit .env and add your CLAUDE_API_KEY
+# Edit .env and add your GEMINI_API_KEY
 docker compose up --build
 ```
 
@@ -53,7 +53,8 @@ Open: `http://localhost:3000`
 | `DATABASE_URL` | Yes | `postgresql://dockpilot:dockpilot_secret@postgres:5432/dockpilot` | Prisma/Postgres connection URL |
 | `JWT_SECRET` | Yes | `change_this_to_a_long_random_string_minimum_32_chars` | JWT signing secret |
 | `JWT_EXPIRY` | Yes | `7d` | JWT expiry window |
-| `CLAUDE_API_KEY` | Yes (AI) | - | Anthropic API key |
+| `GEMINI_API_KEY` | Yes (AI) | - | Gemini API key |
+| `GEMINI_MODEL` | No | `gemini-3-flash-preview` | Gemini model name used by AI service |
 | `ALERT_CPU_THRESHOLD` | No | `80` | CPU alert threshold (percent) |
 | `ALERT_MEMORY_THRESHOLD` | No | `90` | Memory alert threshold (MB in current implementation) |
 | `SMTP_HOST` | No | - | SMTP host for alert emails |
@@ -76,7 +77,7 @@ Open: `http://localhost:3000`
           v                              v
 +-------------------+            +--------------------+
 | FastAPI AI Service|            | Docker Daemon      |
-| Claude + Context  |            | containers/events  |
+| Gemini + Context  |            | containers/events  |
 +---------+---------+            +--------------------+
           |
           | DB writes/reads via backend

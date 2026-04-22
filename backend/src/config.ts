@@ -14,7 +14,7 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL ?? "postgresql://dockpilot:dockpilot_secret@postgres:5432/dockpilot",
   jwtSecret: process.env.JWT_SECRET ?? "change_this_to_a_long_random_string_minimum_32_chars",
   jwtExpiry: process.env.JWT_EXPIRY ?? "7d",
-  claudeApiKey: process.env.CLAUDE_API_KEY ?? "",
+  claudeApiKey: process.env.GEMINI_API_KEY ?? process.env.CLAUDE_API_KEY ?? "",
   aiServiceUrl: process.env.AI_SERVICE_URL ?? "http://ai-service:8000",
   alertCpuThreshold: parseNumber(process.env.ALERT_CPU_THRESHOLD, 80),
   alertMemoryThreshold: parseNumber(process.env.ALERT_MEMORY_THRESHOLD, 90),

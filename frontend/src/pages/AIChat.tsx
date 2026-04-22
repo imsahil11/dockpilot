@@ -159,7 +159,7 @@ const AIChatPage = () => {
 
           if (eventType === "error") {
             finalizeMessage(assistantMessageId, "SUGGEST", null);
-            toast.error(payload.error ?? "Claude API unavailable. Retry in a moment.", { style: toastStyle });
+            toast.error(payload.error ?? "Gemini API unavailable. Retry in a moment.", { style: toastStyle });
           }
         }
       }
